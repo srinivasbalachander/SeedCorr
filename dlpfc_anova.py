@@ -15,10 +15,17 @@ from nilearn.reporting import make_glm_report
 from nilearn.interfaces.bids import save_glm_to_bids
 
 # Get paths to seed correlation maps 
-corrmap_paths = open("./list_DLPFC_seedCorr1.txt", 'r')
-corrmap_paths = corrmap_paths.readlines()
- 
+halfpipe_deriv = "/mnt/HPStorage/CRC_Analysis/Analysis/derivatives/halfpipe/"
+motion_correct = "seedCorr1"
+roi = "LDLPFC"
+
+corrmap_paths = glob.glob(halfpipe_deriv + "*" + 
+                          "/ses-10/func/task-rest/" + "*" + 
+                          motion_correct + "*" + 
+                          roi + "*" + "z_statmap.nii.gz")
+
 nsubj = len(corrmap_paths)
+
 print("Number of subjects for this analysis = ", nsubj)
 
 # Get list of subjects
