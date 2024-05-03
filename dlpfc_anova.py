@@ -89,17 +89,17 @@ print("\nFitting the main GLM models.. \n\n This might take a while so go grab a
 
 # Suffix '0' is for null/intercept-only model, '1' for Group-Only model and '2' for full model adjusted for age/gender
 
-print("\nNow fitting the Intercept-only (null) model... \n")
+print("\n\tNow fitting the Intercept-only (null) model... \n")
 second_level_model0 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = null_matrix)
 
-print("\nNow fitting the Group-only (unadjusted model fitting... \n")
+print("\n\tNow fitting the Group-only (unadjusted) model... \n")
 second_level_model1 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = grouponly_matrix)
 
-print("\nNow fitting the Full (Age/Gender adjusted model... \n")
+print("\n\tNow fitting the Full (Age & Gender adjusted) model... \n")
 second_level_model2 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = covs)
 
 # Apply contrasts
-print("\n Model fitting steps completed successfully, applying various contrasts now.. \n")
+print("\nModel fitting steps completed successfully, applying various contrasts now.. \n")
 print("\n Still some more time for coffee..\n")
 
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
@@ -117,21 +117,21 @@ z_map2_SCZvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_t
 z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_type="z_score")
 
 # ------------------- Save outputs
-z_map1_contrasts = {'SZP': [1, 0, 0], 
+print("\nAnalysis complete, now saving the outputs..\n")
+
+zmap1_contrasts = {'SZP': [1, 0, 0], 
                     'DEP': [0, 1, 0],
                     'HC': [0, 0, 1],
                     'SZPvsHC': [1, 0, -1],
-                    'DEPvsHC': [0, 1, -1])
+                    'DEPvsHC': [0, 1, -1]}
 
-z_map2_contrasts = {'SZP': [0, 0, 1, 0, 0], 
+zmap2_contrasts = {'SZP': [0, 0, 1, 0, 0], 
                     'DEP': [0, 0, 0, 1, 0],
                     'HC': [0, 0, 0, 0, 1],
                     'SZPvsHC': [0, 0, 1, 0, -1],
-                    'DEPvsHC': [0, 0, 0, 1, -1])
+                    'DEPvsHC': [0, 0, 0, 1, -1]}
 
-print("\nAnalysis complete, now saving the outputs..\n")
-
-# Get list of zmap names and store them as a single dictionary 'z_maps'
+# Get list of z_map names and store them as a single dictionary 'z_maps'
 zmap_names = [x for x in locals() if re.match('^z_map.*', x)]
 
 z_maps = {}
@@ -153,11 +153,11 @@ report0 = make_glm_report(model=second_level_model0, contrasts = ["intercept"],
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
-report1 = make_glm_report(model=second_level_model1, contrasts = z_map1_contrasts, 
+report1 = make_glm_report(model=second_level_model1, contrasts = zmap1_contrasts, 
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Group-only (unadjusted) model")
 
-report2 = make_glm_report(model=second_level_model2, contrasts = z_map2_contrasts, 
+report2 = make_glm_report(model=second_level_model2, contrasts = zmap2_contrasts, 
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Full (age & gender adjusted) model")
 
