@@ -77,7 +77,7 @@ covs = covs.rename_axis('')
 covs  = pd.get_dummies(covs, columns=['Group'], prefix='', prefix_sep='', dtype=int)
 
 # Design matrices for null and Group-only (no covariate) models
-null_matrix = pd.DataFrame([1] * nsubj, columns=["intercept"])
+null_matrix = pd.DataFrame([1] * nsubj, columns=['intercept'])
 grouponly_matrix = covs[['SZP', 'DEP', 'HC']]
 full_matrix = covs[['Age', 'Gender', 'SZP', 'DEP', 'HC']]
 
@@ -119,18 +119,6 @@ z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_t
 # ------------------- Save outputs
 print("\nAnalysis complete, now saving the outputs..\n")
 
-zmap1_contrasts = {'SZP': [1, 0, 0], 
-                    'DEP': [0, 1, 0],
-                    'HC': [0, 0, 1],
-                    'SZPvsHC': [1, 0, -1],
-                    'DEPvsHC': [0, 1, -1]}
-
-zmap2_contrasts = {'SZP': [0, 0, 1, 0, 0], 
-                    'DEP': [0, 0, 0, 1, 0],
-                    'HC': [0, 0, 0, 0, 1],
-                    'SZPvsHC': [0, 0, 1, 0, -1],
-                    'DEPvsHC': [0, 0, 0, 1, -1]}
-
 # Get list of z_map names and store them as a single dictionary 'z_maps'
 zmap_names = [x for x in locals() if re.match('^z_map.*', x)]
 
@@ -153,11 +141,11 @@ report0 = make_glm_report(model=second_level_model0, contrasts = ["intercept"],
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
-report1 = make_glm_report(model=second_level_model1, contrasts = zmap1_contrasts, 
+report1 = make_glm_report(model=second_level_model1, contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Group-only (unadjusted) model")
 
-report2 = make_glm_report(model=second_level_model2, contrasts = zmap2_contrasts, 
+report2 = make_glm_report(model=second_level_model2, contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Full (age & gender adjusted) model")
 
