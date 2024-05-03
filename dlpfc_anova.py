@@ -117,6 +117,17 @@ z_map2_SCZvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_t
 z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_type="z_score")
 
 # ------------------- Save outputs
+z_map1_contrasts = {'SZP': [1, 0, 0], 
+                    'DEP': [0, 1, 0],
+                    'HC': [0, 0, 1],
+                    'SZPvsHC': [1, 0, -1],
+                    'DEPvsHC': [0, 1, -1])
+
+z_map2_contrasts = {'SZP': [0, 0, 1, 0, 0], 
+                    'DEP': [0, 0, 0, 1, 0],
+                    'HC': [0, 0, 0, 0, 1],
+                    'SZPvsHC': [0, 0, 1, 0, -1],
+                    'DEPvsHC': [0, 0, 0, 1, -1])
 
 print("\nAnalysis complete, now saving the outputs..\n")
 
@@ -138,16 +149,16 @@ for i in zmap_names:
 # Save GLM reports as html files
 icbm152_2009 = datasets.fetch_icbm152_2009()
 
-report0 = make_glm_report(model=second_level_model0, contrasts=["intercept"], 
+report0 = make_glm_report(model=second_level_model0, contrasts = ["intercept"], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
-report1 = make_glm_report(model=second_level_model1, contrasts=["SZP", "DEP", "HC"], 
-                          height_control='fdr', alpha = 0.05, cluster_threshold=10,
+report1 = make_glm_report(model=second_level_model1, contrasts = z_map1_contrasts, 
+                          height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Group-only (unadjusted) model")
 
-report2 = make_glm_report(model=second_level_model2, contrasts=["SZP", "DEP", "HC"], 
-                          height_control='fdr', alpha = 0.05, cluster_threshold=10,
+report2 = make_glm_report(model=second_level_model2, contrasts = z_map2_contrasts, 
+                          height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Full (age & gender adjusted) model")
 
 report0.save_as_html(Path(output_dir, "NullModel" + '.html'))
