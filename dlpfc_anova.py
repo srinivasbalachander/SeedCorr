@@ -6,7 +6,6 @@ import glob
 import re 
 import pandas as pd 
 import numpy as np
-
 from matplotlib import pyplot as plt
 
 from nilearn import datasets, plotting
@@ -25,7 +24,6 @@ corrmap_paths = glob.glob(halfpipe_deriv + "*" +
                           roi + "*" + "z_statmap.nii.gz")
 
 nsubj = len(corrmap_paths)
-
 
 print("\nStarting second level analysis for seed-based correlation from " + 
       roi + " using " + motion_correct_method + " images")
@@ -86,14 +84,24 @@ full_matrix = covs[['Age', 'Gender', 'SZP', 'DEP', 'HC']]
 print("\nHere's the design matrix now..\n\n")
 print(full_matrix)  
 
-# Fit the statistical models
+#------------------ Fit the statistical models
+print("\nFitting the main GLM models.. \n\n This might take a while so go grab a coffee while you can!")
 
 # Suffix '0' is for null/intercept-only model, '1' for Group-Only model and '2' for full model adjusted for age/gender
+
+print("\nNow fitting the Intercept-only (null) model... \n")
 second_level_model0 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = null_matrix)
+
+print("\nNow fitting the Group-only (unadjusted model fitting... \n")
 second_level_model1 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = grouponly_matrix)
+
+print("\nNow fitting the Full (Age/Gender adjusted model... \n")
 second_level_model2 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = covs)
 
 # Apply contrasts
+print("\n Model fitting steps completed successfully, applying various contrasts now.. \n")
+print("\n Still some more time for coffee..\n")
+
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
 
 z_map1_SCZ = second_level_model1.compute_contrast([1, 0, 0], output_type="z_score")
@@ -108,15 +116,11 @@ z_map2_HC = second_level_model2.compute_contrast([0, 0, 0, 0, 1], output_type="z
 z_map2_SCZvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_type="z_score")
 z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_type="z_score")
 
-# Save outputs
+# ------------------- Save outputs
 
-zmap_names = [zmap0, 
-             zmap1_SCZ, zmap1_DEP, zmap1_HC,
-             zmap1_SCZvsHC, zmap1_DEPvsHC,
-             zmap2_SCZ, zmap2_DEP, zmap2_HC,
-             zmap2_SCZvsHC, zmap2_DEPvsHC]
+print("\nAnalysis complete, now saving the outputs..\n")
 
-# Get list of zmap names and store them as a single dictionary 'zmaps'
+# Get list of zmap names and store them as a single dictionary 'z_maps'
 zmap_names = [x for x in locals() if re.match('^z_map.*', x)]
 
 z_maps = {}
@@ -127,7 +131,7 @@ for i in zmap_names:
 output_dir = Path.cwd() / "results" / roi
 output_dir.mkdir(exist_ok=True, parents=True)
 
-# Run a for loop to save all zmaps to the output directory
+# Run a for loop to save all z_maps to the output directory
 for i in zmap_names:
   z_maps[i].to_filename(Path(output_dir, i + '.nii.gz'))
 
@@ -146,7 +150,8 @@ report2 = make_glm_report(model=second_level_model2, contrasts=["SZP", "DEP", "H
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Full (age & gender adjusted) model")
 
-report0.save_as_html(output_dir / "NullModel" + '.html')
-report1.save_as_html(output_dir / "GroupOnly" + '.html')
-report2.save_as_html(output_dir / "FullModel" + '.html')
+report0.save_as_html(Path(output_dir, "NullModel" + '.html'))
+report1.save_as_html(Path(output_dir, "GroupOnly" + '.html'))
+report2.save_as_html(Path(output_dir, "FullModel" + '.html'))
 
+print("\n\nReports saved, analysis complete.  Congratulations!")
