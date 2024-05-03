@@ -104,16 +104,16 @@ print("\n Still some more time for coffee..\n")
 
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
 
-z_map1_SCZ = second_level_model1.compute_contrast([1, 0, 0], output_type="z_score")
+z_map1_SZP = second_level_model1.compute_contrast([1, 0, 0], output_type="z_score")
 z_map1_DEP = second_level_model1.compute_contrast([0, 1, 0], output_type="z_score")
 z_map1_HC = second_level_model1.compute_contrast([0, 0, 1], output_type="z_score")
-z_map1_SCZvsHC = second_level_model1.compute_contrast([1, 0, -1], output_type="z_score")
+z_map1_SZPvsHC = second_level_model1.compute_contrast([1, 0, -1], output_type="z_score")
 z_map1_DEPvsHC = second_level_model1.compute_contrast([0, 1, -1], output_type="z_score")
 
-z_map2_SCZ = second_level_model2.compute_contrast([0, 0, 1, 0, 0], output_type="z_score")
+z_map2_SZP = second_level_model2.compute_contrast([0, 0, 1, 0, 0], output_type="z_score")
 z_map2_DEP = second_level_model2.compute_contrast([0, 0, 0, 1, 0], output_type="z_score")
 z_map2_HC = second_level_model2.compute_contrast([0, 0, 0, 0, 1], output_type="z_score")
-z_map2_SCZvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_type="z_score")
+z_map2_SZPvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_type="z_score")
 z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_type="z_score")
 
 # ------------------- Save outputs
