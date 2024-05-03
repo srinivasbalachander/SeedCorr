@@ -27,8 +27,8 @@ corrmap_paths = glob.glob(halfpipe_deriv + "*" +
 nsubj = len(corrmap_paths)
 
 
-print("Starting second level analysis for seed-based correlation from" + 
-      roi + "using " + motion_correct + "images")
+print("\nStarting second level analysis for seed-based correlation from " + 
+      roi + " using " + motion_correct_method + " images")
 
 print("\nNumber of subjects for this analysis = ", nsubj)
 
@@ -36,7 +36,7 @@ print("\nNumber of subjects for this analysis = ", nsubj)
 subjlist = [re.search("sub-(.*?)/ses", i).group(1) for i in corrmap_paths]
 
 print("\nList of subjects included for this analysis: \n")
-print(subjlist)
+print(*subjlist, sep = '\n')
 
 # Read the covariates file
 df = pd.read_csv("covs/covs.csv")
