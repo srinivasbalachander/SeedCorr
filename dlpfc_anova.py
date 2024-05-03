@@ -68,7 +68,7 @@ gender_mapping = {'Male':0,'Female':1}
 covs = covs.assign(Gender = covs.Gender.map(gender_mapping))
 
 # Reorder the covariates file based on the exact order from subj list of .nii.gz files
-covs = covs.set_index("ProjectNumber")
+covs = covs.set_index("ID")
 covs = covs.reindex(index = subjlist)
 covs['index'] =  list(range(0, nsubj))
 covs =  covs.set_index("index")
@@ -80,15 +80,18 @@ covs  = pd.get_dummies(covs, columns=['Group'], prefix='', prefix_sep='', dtype=
 
 # Design matrices for null and Group-only (no covariate) models
 null_matrix = pd.DataFrame([1] * nsubj, columns=["intercept"])
-grouponly_matrix = covs[['SCZ', 'DEP', 'HC']]
-full_matrix = covs[['Age', 'Gender', 'SCZ', 'DEP', 'HC']]
+grouponly_matrix = covs[['SZP', 'DEP', 'HC']]
+full_matrix = covs[['Age', 'Gender', 'SZP', 'DEP', 'HC']]
+
+print("\nHere's the design matrix now..\n\n")
+print(full_matrix)  
 
 # Fit the statistical models
 
 # Suffix '0' is for null/intercept-only model, '1' for Group-Only model and '2' for full model adjusted for age/gender
-second_level_model0 = SecondLevelModel(n_jobs=4).fit(dlpfcmaps, design_matrix = null_matrix)
-second_level_model1 = SecondLevelModel(n_jobs=4).fit(dlpfcmaps, design_matrix = grouponly_matrix)
-second_level_model2 = SecondLevelModel(n_jobs=4).fit(dlpfcmaps, design_matrix = covs)
+second_level_model0 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = null_matrix)
+second_level_model1 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = grouponly_matrix)
+second_level_model2 = SecondLevelModel(n_jobs=8).fit(corrmap_paths, design_matrix = covs)
 
 # Apply contrasts
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
@@ -114,10 +117,11 @@ zmap_names = [zmap0,
              zmap2_SCZvsHC, zmap2_DEPvsHC]
 
 # Get list of zmap names and store them as a single dictionary 'zmaps'
-zmap_names = [x for x in locals() if re.match('^zmap.*', x)]
+zmap_names = [x for x in locals() if re.match('^z_map.*', x)]
 
+z_maps = {}
 for i in zmap_names:      
-    zmaps[i] = eval(i) 
+    z_maps[i] = eval(i) 
 
 # Save them to the ouput directory
 output_dir = Path.cwd() / "results" / roi
@@ -125,7 +129,7 @@ output_dir.mkdir(exist_ok=True, parents=True)
 
 # Run a for loop to save all zmaps to the output directory
 for i in zmap_names:
-  z_maps[i].to_filename(join(output_dir, roi, i + '.nii.gz'))
+  z_maps[i].to_filename(Path(output_dir, i + '.nii.gz'))
 
 # Save GLM reports as html files
 icbm152_2009 = datasets.fetch_icbm152_2009()
@@ -134,15 +138,15 @@ report0 = make_glm_report(model=second_level_model0, contrasts=["intercept"],
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
-report1 = make_glm_report(model=second_level_model1, contrasts=["SCZ", "DEP", "HC"], 
+report1 = make_glm_report(model=second_level_model1, contrasts=["SZP", "DEP", "HC"], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Group-only (unadjusted) model")
 
-report2 = make_glm_report(model=second_level_model2, contrasts=["SCZ", "DEP", "HC"], 
+report2 = make_glm_report(model=second_level_model2, contrasts=["SZP", "DEP", "HC"], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Full (age & gender adjusted) model")
 
-report0.save_as_html(output_dir / roi / "NullModel" + '.nii.gz')
-report1.save_as_html(output_dir / roi / "GroupOnly" + '.nii.gz')
-report2.save_as_html(output_dir / roi / "FullModel" + '.nii.gz')
+report0.save_as_html(output_dir / "NullModel" + '.html')
+report1.save_as_html(output_dir / "GroupOnly" + '.html')
+report2.save_as_html(output_dir / "FullModel" + '.html')
 
