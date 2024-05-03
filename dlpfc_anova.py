@@ -124,7 +124,8 @@ output_dir = Path.cwd() / "results" / roi
 output_dir.mkdir(exist_ok=True, parents=True)
 
 # Run a for loop to save all zmaps to the output directory
-z_maps[i].to_filename(join(output_dir, roi, i + '.nii.gz'))
+for i in zmap_names:
+  z_maps[i].to_filename(join(output_dir, roi, i + '.nii.gz'))
 
 # Save GLM reports as html files
 icbm152_2009 = datasets.fetch_icbm152_2009()
