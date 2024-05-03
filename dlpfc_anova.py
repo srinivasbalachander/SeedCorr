@@ -141,12 +141,12 @@ report0 = make_glm_report(model=second_level_model0, contrasts = ["intercept"],
                           height_control='fdr', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
-report1 = make_glm_report(model=second_level_model1, contrasts = ['SZP', 'DEP', 'HC', 'SZP-HC', 'DEP-HC'], 
-                          height_control='fdr', alpha = 0.05, cluster_threshold=20,
+report1 = make_glm_report(model=second_level_model1, contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'], 
+                          height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Group-only (unadjusted) model")
 
-report2 = make_glm_report(model=second_level_model2, contrasts = ['SZP', 'DEP', 'HC', 'SZP-HC', 'DEP-HC'], 
-                          height_control='fdr', alpha = 0.05, cluster_threshold=20,
+report2 = make_glm_report(model=second_level_model2, contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'], 
+                          height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Full (age & gender adjusted) model")
 
 report0.save_as_html(Path(output_dir, "NullModel" + '.html'))
