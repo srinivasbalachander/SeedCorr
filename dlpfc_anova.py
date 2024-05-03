@@ -1,5 +1,6 @@
 # Seed Based Correlation 2nd Level (Group) Analysis using NiLearn
 
+# Load the necessary libraries
 from pathlib import Path
 import glob
 import re 
@@ -15,54 +16,64 @@ from nilearn.reporting import make_glm_report
 
 # Get paths to seed correlation maps 
 halfpipe_deriv = "/mnt/HPStorage/CRC_Analysis/Analysis/derivatives/halfpipe/"
-motion_correct = "seedCorr1"
+motion_correct_method = "seedCorr1"
 roi = "LDLPFC"
 
 corrmap_paths = glob.glob(halfpipe_deriv + "*" + 
                           "/ses-10/func/task-rest/" + "*" + 
-                          motion_correct + "*" + 
+                          motion_correct_method + "*" + 
                           roi + "*" + "z_statmap.nii.gz")
 
 nsubj = len(corrmap_paths)
 
-print("Number of subjects for this analysis = ", nsubj)
+
+print("Starting second level analysis for seed-based correlation from" + 
+      roi + "using " + motion_correct + "images")
+
+print("\nNumber of subjects for this analysis = ", nsubj)
 
 # Get list of subjects
 subjlist = [re.search("sub-(.*?)/ses", i).group(1) for i in corrmap_paths]
-subjlist
+
+print("\nList of subjects included for this analysis: \n")
+print(subjlist)
 
 # Read the covariates file
 df = pd.read_csv("covs/covs.csv")
-df
+
+print("Here's the raw covariates file, check if its OK\n\n")
+print(df)
+
+#--------------------Make covariates design-matrix worthy
 
 # Check duplicates in the covariates file
 unique, counts = np.unique(df[['ID']], return_counts=True)
 duplicates = unique[np.where(counts > 1)]
-print(duplicates)
 
-# Make covariates design-matrix worthy
+if len(duplicates) > 0 :
+  print("The following duplicates were found in your covariates file taking only the first entry")
+  print(duplicates)
 
-# Subset only the required rows and columns
+# Subset only the required rows, those subjects for whom .nii maps processed
 covs = df[df['ID'].isin(subjlist)]
+
+# Only these columns are needed, change if new covariates are added..
 covs = covs[["ID", "Age", "Gender", "Group"]]
 
-# Deleting duplicate rows, check the values with Harsh
+# Deleting duplicate rows
 covs = covs.drop_duplicates(subset='ID', keep="first")
 
-# Recode categorical variables to 0 and 1
+# Recode categorical variable (gender) to 0 and 1
 gender_mapping = {'Male':0,'Female':1}
 covs = covs.assign(Gender = covs.Gender.map(gender_mapping))
 
-# Reorder the covariates file based on the subj list
+# Reorder the covariates file based on the exact order from subj list of .nii.gz files
 covs = covs.set_index("ProjectNumber")
 covs = covs.reindex(index = subjlist)
 covs['index'] =  list(range(0, nsubj))
 covs =  covs.set_index("index")
 
 covs = covs.rename_axis('')
-
-# Make a column for intercept also
-# covs['intercept'] = list([1]*nsubj)
 
 # Change Group variable to dummy coded columns
 covs  = pd.get_dummies(covs, columns=['Group'], prefix='', prefix_sep='', dtype=int)
@@ -73,6 +84,7 @@ grouponly_matrix = covs[['SCZ', 'DEP', 'HC']]
 full_matrix = covs[['Age', 'Gender', 'SCZ', 'DEP', 'HC']]
 
 # Fit the statistical models
+
 # Suffix '0' is for null/intercept-only model, '1' for Group-Only model and '2' for full model adjusted for age/gender
 second_level_model0 = SecondLevelModel(n_jobs=4).fit(dlpfcmaps, design_matrix = null_matrix)
 second_level_model1 = SecondLevelModel(n_jobs=4).fit(dlpfcmaps, design_matrix = grouponly_matrix)
@@ -125,9 +137,11 @@ report1 = make_glm_report(model=second_level_model1, contrasts=["SCZ", "DEP", "H
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Group-only (unadjusted) model")
 
-report1 = make_glm_report(model=second_level_model2, contrasts=["SCZ", "DEP", "HC"], 
+report2 = make_glm_report(model=second_level_model2, contrasts=["SCZ", "DEP", "HC"], 
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
-                          title = "Group-only (unadjusted) model")
+                          title = "Full (age & gender adjusted) model")
 
-report.save_as_html(output_dir/ roi / i + '.nii.gz')
+report0.save_as_html(output_dir / roi / "NullModel" + '.nii.gz')
+report1.save_as_html(output_dir / roi / "GroupOnly" + '.nii.gz')
+report2.save_as_html(output_dir / roi / "FullModel" + '.nii.gz')
 
