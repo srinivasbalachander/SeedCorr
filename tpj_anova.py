@@ -112,25 +112,25 @@ output_dir.mkdir(exist_ok=True, parents=True)
 save_glm_to_bids(
     second_level_model0,
     contrasts = ["intercept"],
-    height_control = 'fdr', alpha = 0.05, cluster_threshold=20,
-    title = "Intercept-only (null) model",
     out_dir = output_dir / "NullModel",
-    prefix = "NullModel")
+    prefix = "NullModel",
+    height_control = 'fdr', alpha = 0.05, cluster_threshold=20,
+    title = "Intercept-only (null) model",)
 
 save_glm_to_bids(
     second_level_model1,
     contrasts=['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'],
-    height_control='fdr', alpha = 0.05, cluster_threshold = 10,
-    title = "Group-only (unadjusted) model",
     out_dir=output_dir / "GroupOnlyModel",
-    prefix="GroupOnlyModel")
+    prefix="GroupOnlyModel",
+    height_control='fdr', alpha = 0.05, cluster_threshold = 10,
+    title = "Group-only (unadjusted) model",)
 
 save_glm_to_bids(
     second_level_model2,
     contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'],
-    height_control = 'fdr', alpha = 0.05, cluster_threshold = 10,
-    title = "Full (age & gender adjusted) model",
     out_dir = output_dir / "FullModel",
-    prefix = "FullModel")
+    prefix = "FullModel",
+    height_control = 'fdr', alpha = 0.05, cluster_threshold = 10,
+    title = "Full (age & gender adjusted) model",)
 
 print("\n\nReports saved, analysis complete.  Congratulations!")
