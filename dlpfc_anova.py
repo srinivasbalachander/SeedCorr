@@ -13,10 +13,13 @@ from nilearn.glm.second_level import SecondLevelModel
 from nilearn.glm import threshold_stats_img
 from nilearn.reporting import make_glm_report
 
-# Get paths to seed correlation maps 
+# Specify important variables about the analysis
+
 halfpipe_deriv = "/mnt/HPStorage/CRC_Analysis/Analysis/derivatives/halfpipe/"
 motion_correct_method = "seedCorr1"
 roi = "LDLPFC"
+
+# Get paths to seed correlation maps 
 
 corrmap_paths = glob.glob(halfpipe_deriv + "*" + 
                           "/ses-10/func/task-rest/" + "*" + 
@@ -159,11 +162,11 @@ import json
 
 motion_int = re.findall('\d+', motion_correct_method)
 
-if (motion_int == 1):
+if (motion_int == 1)  : 
   motion_correct_method = "aCompCor"
 elif (motion_int == 2):
   motion_correct_method = "ICA AROMA + aCompCor"
-else :
+else                  :
   motion_correct_method = "ICA AROMA"
   
 description = {'SeedRegion': roi,
@@ -174,7 +177,7 @@ description = {'SeedRegion': roi,
                 'N_HC' : int(covs['HC'].sum()),
                 'subjpaths': corrmap_paths}
 
-with open(Path(output_dir, "description.json"), "a") as outfile :
+with open(Path(output_dir, "description" + "_" + roi + "_" + motion_correct_method + ".json"), "a") as outfile :
     outfile.write(json.dumps(description, indent = 2))
 
 print("\n\nReports saved, analysis complete.  Congratulations!")
