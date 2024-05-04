@@ -153,4 +153,28 @@ report0.save_as_html(Path(output_dir, "NullModel" + '.html'))
 report1.save_as_html(Path(output_dir, "GroupOnly" + '.html'))
 report2.save_as_html(Path(output_dir, "FullModel" + '.html'))
 
+# Saving a few other important info
+
+import json
+
+motion_int = re.findall('\d+', motion_correct_method)
+
+if (motion_int == 1):
+  motion_correct_method = "aCompCor"
+elif (motion_int == 2):
+  motion_correct_method = "ICA AROMA + aCompCor"
+else :
+  motion_correct_method = "ICA AROMA"
+  
+description = {'SeedRegion': roi,
+                'motion_correction' : motion_correct_method,
+                'NSubjects' : nsubj,
+                'N_SZP' : int(covs['SZP'].sum()),
+                'N_DEP' : int(covs['DEP'].sum()),
+                'N_HC' : int(covs['HC'].sum()),
+                'subjpaths': corrmap_paths}
+
+with open(Path(output_dir, "description.json"), "a") as outfile :
+    outfile.write(json.dumps(description, indent = 2))
+
 print("\n\nReports saved, analysis complete.  Congratulations!")
