@@ -132,7 +132,7 @@ output_dir.mkdir(exist_ok=True, parents=True)
 
 # Run a for loop to save all z_maps to the output directory
 for i in zmap_names:
-  z_maps[i].to_filename(Path(output_dir, i + '.nii.gz'))
+  z_maps[i].to_filename(Path(output_dir, i + "_" + roi + "_" + motion_correct_method + '.nii.gz'))
 
 # Save GLM reports as html files
 icbm152_2009 = datasets.fetch_icbm152_2009()
@@ -149,9 +149,9 @@ report2 = make_glm_report(model=second_level_model2, contrasts = ['SZP', 'DEP', 
                           height_control='fdr', alpha = 0.05, cluster_threshold=10,
                           title = "Full (age & gender adjusted) model")
 
-report0.save_as_html(Path(output_dir, "NullModel" + '.html'))
-report1.save_as_html(Path(output_dir, "GroupOnly" + '.html'))
-report2.save_as_html(Path(output_dir, "FullModel" + '.html'))
+report0.save_as_html(Path(output_dir, "NullModel" + "_" + roi + "_" + motion_correct_method + '.html'))
+report1.save_as_html(Path(output_dir, "GroupOnly" + "_" + roi + "_" + motion_correct_method + '.html'))
+report2.save_as_html(Path(output_dir, "FullModel" + "_" + roi + "_" + motion_correct_method + '.html'))
 
 # Saving a few other important info
 
