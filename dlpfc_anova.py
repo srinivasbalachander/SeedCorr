@@ -164,10 +164,10 @@ import json
 
 motion_int = re.findall('\d+', firstlevel_name)
 
-if (motion_int == 1)  : 
+if (motion_int[0] == '1')  : 
   motion_correct_method = "aCompCor"
-elif (motion_int == 2):
-  motion_correct_method = "ICA AROMA + aCompCor"
+elif (motion_int[0] == '2'):
+  motion_correct_method = "ICA AROMA+aCompCor"
 else                  :
   motion_correct_method = "ICA AROMA"
   
@@ -179,7 +179,7 @@ description = {'SeedRegion': roi,
                 'N_HC' : int(covs['HC'].sum()),
                 'subjpaths': firstlevel_paths}
 
-with open(Path(output_dir, "description" + "_" + roi + "_" + motion_correct_method + ".json"), "a") as outfile :
+with open(Path(output_dir, "description" + "_" + roi + "_" + firstlevel_name + ".json"), "a") as outfile :
     outfile.write(json.dumps(description, indent = 2))
 
 print("\n\nReports saved, analysis complete.  Congratulations!")
