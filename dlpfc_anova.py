@@ -26,7 +26,7 @@ firstlevel_paths = glob.glob(halfpipe_deriv + "*" +
                           firstlevel_name + "*" + 
                           roi + "*" + "z_statmap.nii.gz")
 
-nsubj = len(corrmap_paths)
+nsubj = len(firstlevel_paths)
 
 print("\nStarting second level analysis for seed-based correlation from " + 
       roi + " using " + firstlevel_name + " images")
