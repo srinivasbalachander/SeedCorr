@@ -164,12 +164,14 @@ import json
 
 motion_int = re.findall('\d+', firstlevel_name)
 
-if (motion_int[0] == '1')  : 
+if (len(motion_int) == 0)  : 
+  motion_correct_method = "ICA AROMA"
+elif (motion_int[0] == '1'):
   motion_correct_method = "aCompCor"
 elif (motion_int[0] == '2'):
   motion_correct_method = "ICA AROMA+aCompCor"
-else                  :
-  motion_correct_method = "ICA AROMA"
+else :
+  motion_correct_method = ""
   
 description = {'SeedRegion': roi,
                 'motion_correction' : motion_correct_method,
