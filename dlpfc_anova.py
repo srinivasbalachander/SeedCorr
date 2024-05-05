@@ -22,9 +22,10 @@ from nilearn.reporting import make_glm_report
 # Get paths to seed correlation maps 
 
 firstlevel_paths = glob.glob(halfpipe_deriv + "*" + 
-                          "/ses-10/func/task-rest/" + "*" + 
-                          firstlevel_name + "*" + 
-                          roi + "*" + "z_statmap.nii.gz")
+                             "/ses-10/func/task-rest/" + "*" + 
+                             "_feature-" + firstlevel_name + 
+                             "_seed-" + roi + 
+                             "_stat-" + "z_statmap.nii.gz")
 
 nsubj = len(firstlevel_paths)
 
