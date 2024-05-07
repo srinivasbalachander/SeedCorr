@@ -133,7 +133,7 @@ print("\nAnalysis complete, now saving the HTML outputs..\n")
 icbm152_2009 = datasets.fetch_icbm152_2009()
 
 report0 = make_glm_report(model=second_level_model0, contrasts = ["intercept"], 
-                          height_control='fwer', alpha = 0.05, cluster_threshold=20,
+                          height_control='bonferroni', alpha = 0.05, cluster_threshold=20,
                           title = "Intercept-only (null) model")
 
 report1 = make_glm_report(model=second_level_model1, contrasts = ['SZP', 'DEP', 'HC', 'SZP - HC', 'DEP - HC'], 
