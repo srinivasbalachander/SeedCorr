@@ -3,7 +3,7 @@
 # Specify important variables about the analysis (see if these can be entered from the command line)
 
 halfpipe_deriv = "/mnt/HPStorage/CRC_Analysis/Analysis/derivatives/halfpipe/"
-firstlevel_name = "seedCorr1"
+firstlevel_name = "seedCorr2"
 roi = "LDLPFC"
 
 # Load the necessary libraries
@@ -116,7 +116,7 @@ print("\n Still some more time for coffee..\n")
 contrasts_list = ["SZP", "DEP", "HC", "SZP-HC", "DEP-HC"]
 
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
-z_map0.to_filename(Path(output_dir, "zmap0_" + i + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
+z_map0.to_filename(Path(output_dir, "zmap0_" + "Intercept" + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
 
 for i in contrasts_list :
   print("Contrast : " + i)
