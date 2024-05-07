@@ -19,6 +19,12 @@ from nilearn.glm.second_level import SecondLevelModel
 from nilearn.glm import threshold_stats_img
 from nilearn.reporting import make_glm_report
 
+
+# Specify the output directory
+
+output_dir = Path.cwd() / "results" / roi / firstlevel_name
+output_dir.mkdir(exist_ok=True, parents=True)
+
 # Get paths to seed correlation maps 
 
 firstlevel_paths = glob.glob(halfpipe_deriv + "*" + 
@@ -95,49 +101,33 @@ print("\nFitting the main GLM models.. \n\n This might take a while so go grab a
 # Suffix '0' is for null/intercept-only model, '1' for Group-Only model and '2' for full model adjusted for age/gender
 
 print("\n\tNow fitting the Intercept-only (null) model... \n")
-second_level_model0 = SecondLevelModel(n_jobs=8).fit(firstlevel_paths, design_matrix = null_matrix)
+second_level_model0 = SecondLevelModel(n_jobs=8, smoothing_fwhm=6.0).fit(firstlevel_paths, design_matrix = null_matrix)
 
 print("\n\tNow fitting the Group-only (unadjusted) model... \n")
-second_level_model1 = SecondLevelModel(n_jobs=8).fit(firstlevel_paths, design_matrix = grouponly_matrix)
+second_level_model1 = SecondLevelModel(n_jobs=8, smoothing_fwhm=6.0).fit(firstlevel_paths, design_matrix = grouponly_matrix)
 
 print("\n\tNow fitting the Full (Age & Gender adjusted) model... \n")
-second_level_model2 = SecondLevelModel(n_jobs=8).fit(firstlevel_paths, design_matrix = covs)
+second_level_model2 = SecondLevelModel(n_jobs=8, smoothing_fwhm=6.0).fit(firstlevel_paths, design_matrix = full_matrix)
 
 # Apply contrasts
 print("\nModel fitting steps completed successfully, applying various contrasts now.. \n")
 print("\n Still some more time for coffee..\n")
 
+contrasts_list = ["SZP", "DEP", "HC", "SZP-HC", "DEP-HC"]
+
 z_map0 = second_level_model0.compute_contrast(output_type="z_score")
+z_map0.to_filename(Path(output_dir, "zmap0_" + i + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
 
-z_map1_SZP = second_level_model1.compute_contrast([1, 0, 0], output_type="z_score")
-z_map1_DEP = second_level_model1.compute_contrast([0, 1, 0], output_type="z_score")
-z_map1_HC = second_level_model1.compute_contrast([0, 0, 1], output_type="z_score")
-z_map1_SZPvsHC = second_level_model1.compute_contrast([1, 0, -1], output_type="z_score")
-z_map1_DEPvsHC = second_level_model1.compute_contrast([0, 1, -1], output_type="z_score")
-
-z_map2_SZP = second_level_model2.compute_contrast([0, 0, 1, 0, 0], output_type="z_score")
-z_map2_DEP = second_level_model2.compute_contrast([0, 0, 0, 1, 0], output_type="z_score")
-z_map2_HC = second_level_model2.compute_contrast([0, 0, 0, 0, 1], output_type="z_score")
-z_map2_SZPvsHC = second_level_model2.compute_contrast([0, 0, 1, 0, -1], output_type="z_score")
-z_map2_DEPvsHC = second_level_model2.compute_contrast([0, 0, 0, 1, -1], output_type="z_score")
+for i in contrasts_list :
+  print("Contrast : " + i)
+  z_map1 = second_level_model1.compute_contrast(i, output_type="z_score")
+  z_map2 = second_level_model2.compute_contrast(i, output_type="z_score")
+  
+  z_map1.to_filename(Path(output_dir, "zmap1_" + i + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
+  z_map2.to_filename(Path(output_dir, "zmap2_" + i + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
 
 # ------------------- Save outputs
-print("\nAnalysis complete, now saving the outputs..\n")
-
-# Get list of z_map names and store them as a single dictionary 'z_maps'
-zmap_names = [x for x in locals() if re.match('^z_map.*', x)]
-
-z_maps = {}
-for i in zmap_names:      
-    z_maps[i] = eval(i) 
-
-# Save them to the ouput directory
-output_dir = Path.cwd() / "results" / roi / firstlevel_name
-output_dir.mkdir(exist_ok=True, parents=True)
-
-# Run a for loop to save all z_maps to the output directory
-for i in zmap_names:
-  z_maps[i].to_filename(Path(output_dir, i + "_" + roi + "_" + firstlevel_name + '.nii.gz'))
+print("\nAnalysis complete, now saving the HTML outputs..\n")
 
 # Save GLM reports as html files
 icbm152_2009 = datasets.fetch_icbm152_2009()
